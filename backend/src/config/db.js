@@ -1,41 +1,56 @@
-const mongoose = require('mongoose');
-const dns = require('dns');
 
-// Configure public DNS servers to resolve MongoDB Atlas SRV records
-// when local router / ISP DNS refuses or times out on SRV queries
-try {
-  dns.setServers(['8.8.8.8', '8.8.4.4']);
-} catch (dnsErr) {
-  // Fall back to system DNS if setting custom servers fails
-}
+const mongoose = require('mongoose');
 
 let isConnected = false;
 
 const connectDB = async () => {
-  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/codesense_ai';
-
   try {
+    // Get MongoDB Atlas URI from Render Environment Variables
+    const uri = process.env.MONGODB_URI;
+
+    // Check whether MongoDB URI exists
+    if (!uri) {
+      throw new Error('MONGODB_URI is missing in environment variables');
+    }
+
+    // Mongoose configuration
     mongoose.set('strictQuery', false);
+
+    // Connect to MongoDB Atlas
     const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 15000,
       dbName: 'codesense_ai',
     });
 
     isConnected = true;
-    console.log(`[Database] MongoDB Connected successfully: ${conn.connection.host}`);
+
+    console.log('======================================');
+    console.log('MongoDB Connected Successfully!');
+    console.log(`Database Host: ${conn.connection.host}`);
+    console.log(`Database Name: ${conn.connection.name}`);
+    console.log('======================================');
+
     return true;
+
   } catch (error) {
     isConnected = false;
-    console.warn(`[Database] Notice: Could not connect to MongoDB at ${uri}.`);
-    console.warn(`[Database] Error: ${error.message}`);
-    console.warn(`[Database] CodeSense AI is running in Fallback Storage Mode.`);
-    console.warn(`[Database] To use persistent MongoDB: set MONGODB_URI in backend/.env with your MongoDB Atlas or local connection string.`);
+
+    console.error('======================================');
+    console.error('MongoDB Connection Failed!');
+    console.error('Error:', error.message);
+    console.error('Please check your MongoDB Atlas URI.');
+    console.error('======================================');
+
     return false;
   }
 };
 
-const isMongoConnected = () => isConnected;
+// Check MongoDB connection status
+const isMongoConnected = () => {
+  return isConnected && mongoose.connection.readyState === 1;
+};
 
+// Export functions
 module.exports = {
   connectDB,
   isMongoConnected,
