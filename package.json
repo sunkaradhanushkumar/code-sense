@@ -1,0 +1,25 @@
+{
+  "name": "codesense-ai",
+  "version": "1.0.0",
+  "description": "CodeSense AI - Full-Stack AI-Powered Code Review Platform",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "npm --prefix frontend run dev",
+    "backend": "npm --prefix backend start",
+    "backend:dev": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build"
+  },
+  "keywords": [
+    "ai",
+    "code-review",
+    "react",
+    "monaco-editor",
+    "nodejs",
+    "express",
+    "mongodb",
+    "gemini"
+  ],
+  "author": "CodeSense AI Team",
+  "license": "MIT"
+}
